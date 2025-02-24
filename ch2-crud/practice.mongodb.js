@@ -55,12 +55,27 @@
 // 0번
 db.createCollection("user");
 
-db.user.insertOne({
-    name: "swh",
-    age: 25,
-    email: "swh@gmail.com",
-    hobbies: ["soccer", "tennis", "gaming", "swimming"]
-});
+db.user.insertMany([
+    {
+        name: "swh",
+        age: 25,
+        email: "swh@gmail.com",
+        hobbies: ["soccer", "tennis", "gaming", "swimming"]
+    },
+    {
+        name: "swh2",
+        age: 35,
+        email: "swh2@gmail.com",
+        hobbies: ["soccer", "youtube", "gaming", "swimming"]
+    },
+    {
+        name: "swh3",
+        age: 42,
+        email: "swh3@gmail.com",
+        hobbies: ["soccer", "tennis", "gaming", "webtoon"]
+    }
+]);
+
 
 // 0-2번
 db.createCollection("employees")
@@ -92,7 +107,7 @@ for (i = 0; i < 1000; i++) {
 db.logs.find();
 
 // 2번
-// use myDataBase
+use("myDataBase")
 
 // 3번
 db.createCollection("students")
@@ -119,11 +134,14 @@ db.students.updateMany(
     { $set: { status: "active" } }
 );
 
+db.students.find();
+
 // 8번
 db.students.deleteOne({ name: "John" });
 
 // 9번
 db.students.updateMany({ age: { $gte: 23 } }, { $set: { isAdult: true } });
+db.students.deleteMany({});
 
 // 10번
 db.students.find().sort({ age: -1 }).limit(3);
@@ -133,6 +151,7 @@ db.students.find({}, { name: 1, age: 1, _id: 0 });
 
 // 14번
 db.employees.countDocuments({ age: { $gte: 30 } });
+db.students.find();
 
 // 15번
 db.employees.find({ email: { $exists: true } });
