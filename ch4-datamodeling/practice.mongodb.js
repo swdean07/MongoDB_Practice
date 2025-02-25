@@ -273,7 +273,147 @@ db.patients.insertMany([
 
 // 3. 계층형 데이터 구조
 // categories 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
+
+db.categories.insertMany([
+    { _id: 1, name: "Electronics", parentId: null},
+    { _id: 2, name: "Computers", parentId: 1},
+    { _id: 3, name: "Laptops", parentId: 2},
+    { _id: 4, name: "Desktops", parentId: 2},
+    { _id: 5, name: "Smartphones", parentId: 1},
+    { _id: 6, name: "Accessories", parentId: 1},
+    { _id: 7, name: "Headphones", parentId: 6},
+    { _id: 8, name: "Chargers", parentId: 6},
+])
+
+db.categories.find().pretty();
+
+db.categories.find({ parentId:1 }).pretty();
+
+db.categories.aggregate([
+    {
+      $graphLookup: {
+        from: "categories",
+        startWith: "$_id",
+        connectFromField: "_id",
+        connectToField: "parentId",
+        as: "subcategories"
+      }
+    }
+  ]).pretty();
+
 // comments 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
+
+db.comments.insertMany([
+    {_id: 1, text: "첫 번째 댓글입니다.", user: "Sean", postId: 100, parentId: null, createdAt: new Date()},
+    {_id: 2, text: "두 번째 댓글입니다.", user: "Alice", postId: 100, parentId: null, createdAt: new Date()},
+    {_id: 3, text: "첫 번째 댓글의 대댓글입니다.", user: "Charlie", postId: 100, parentId: 1, createdAt: new Date()},
+    {_id: 4, text: "첫 번째 댓글의 또 다른 대댓글입니다.", user: "Dave", postId: 100, parentId: 1, createdAt: new Date()},
+    {_id: 5, text: "대댓글의 대댓글입니다.", user: "Eve", postId: 100, parentId: 3, createdAt: new Date()},
+    {_id: 6, text: "두 번째 댓글의 대댓글입니다.", user: "Frank", postId: 100, parentId: 2, createdAt: new Date()},
+])
+
+db.comments.find().pretty();
+
+db.comments.find({ parentId: 1}).pretty();
+
+db.comments.aggregate([
+    {
+      $graphLookup: {
+        from: "comments",
+        startWith: "$_id",
+        connectFromField: "_id",
+        connectToField: "parentId",
+        as: "replies"
+      }
+    }
+  ]).pretty();
+
 // company_structure 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
+
+db.company_structure.insertMany([
+    { _id: 1, name: "Alice", position: "CEO", department: "Management", parentId: null, createdAt: new Date() },
+    { _id: 2, name: "Bob", position: "CTO", department: "Technology", parentId: 1, createdAt: new Date() },
+    { _id: 3, name: "Charlie", position: "CFO", department: "Finance", parentId: 1, createdAt: new Date() },
+    { _id: 4, name: "David", position: "Engineering Manager", department: "Technology", parentId: 2, createdAt: new Date() },
+    { _id: 5, name: "Eve", position: "Software Engineer", department: "Technology", parentId: 4, createdAt: new Date() },
+    { _id: 6, name: "Frank", position: "HR Manager", department: "HR", parentId: 1, createdAt: new Date() },
+    { _id: 7, name: "Grace", position: "Accountant", department: "Finance", parentId: 3, createdAt: new Date() }
+  ]);
+
+db.company_structure.find().pretty();
+
+db.company_structure.find({ parentId: 1 }).pretty();
+
+db.company_structure.findOne({ _id: 5 }).parentId;
+
+db.company_structure.aggregate([
+    {
+      $graphLookup: {
+        from: "company_structure",
+        startWith: "$_id",
+        connectFromField: "_id",
+        connectToField: "parentId",
+        as: "subordinates"
+      }
+    }
+  ]).pretty();
+
 // locations 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
+
+db.locations.insertMany([
+    { _id:1, name: "Korea", type: "Country", parentId: null, createdAt: new Date() },
+    { _id:2, name: "Seoul", type: "City", parentId: 1, createdAt: new Date() },
+    { _id:3, name: "Busan", type: "Country", parentId: 1, createdAt: new Date() },
+    { _id:4, name: "Gangnam-gu", type: "District", parentId: 2, createdAt: new Date() },
+    { _id:5, name: "Jongno-gu", type: "District", parentId: 2, createdAt: new Date() },
+    { _id:6, name: "Haeundae-gu", type: "District", parentId: 3, createdAt: new Date() },
+    { _id:7, name: "Gijang-gun", type: "District", parentId: 3, createdAt: new Date() }
+]);
+
+db.locations.find().pretty();
+
+db.locations.find({ parentId: 1 }).pretty();
+
+db.locations.aggregate([
+    {
+      $graphLookup: {
+        from: "locations",
+        startWith: "$_id",
+        connectFromField: "_id",
+        connectToField: "parentId",
+        as: "subLocations"
+      }
+    }
+  ]).pretty();
+
 // menus 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
+
+db.menus.insertMany([
+    { _id: 1, name: "Home", url: "/", parentId: null, order: 1, createdAt: new Date() },
+    { _id: 2, name: "Products", url: "/products", parentId: null, order: 2, createdAt: new Date() },
+    { _id: 3, name: "Electronics", url: "/products/electronics", parentId: 2, order: 1, createdAt: new Date() },
+    { _id: 4, name: "Laptops", url: "/products/electronics/laptops", parentId: 3, order: 1, createdAt: new Date() },
+    { _id: 5, name: "Smartphones", url: "/products/electronics/smartphones", parentId: 3, order: 2, createdAt: new Date() },
+    { _id: 6, name: "Clothing", url: "/products/clothing", parentId: 2, order: 2, createdAt: new Date() },
+    { _id: 7, name: "About Us", url: "/about", parentId: null, order: 3, createdAt: new Date() },
+    { _id: 8, name: "Contact", url: "/contact", parentId: null, order: 4, createdAt: new Date() }
+  ]);
+  
+db.menus.find().pretty();
+
+db.menus.find({ parentId: null }).sort({ order: 1 }).pretty();
+
+db.menus.find({ parentId: 2 }).sort({ order: 1 }).pretty();
+
+db.menus.aggregate([
+    {
+      $graphLookup: {
+        from: "menus",
+        startWith: "$_id",
+        connectFromField: "_id",
+        connectToField: "parentId",
+        as: "subMenus"
+      }
+    }
+  ]).pretty();
+  
