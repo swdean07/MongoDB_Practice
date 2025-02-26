@@ -367,49 +367,43 @@ db.patients.insertMany([
 // 3. 계층형 데이터 구조
 // categories 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
-// 최상위 카테고리 ObjectId 생성
-var electronicsId = ObjectId("65d94f2f9a1d4a3b0c5a1k01");
-var clothingId = ObjectId("65d94f2f9a1d4a3b0c5a1k02");
+// 최상위 카테고리 (전자제품) ObjectId 생성
+var catElectronics = ObjectId("67be61f48dd05ef4b630cb96");
 
-// 하위 카테고리 ObjectId 생성
-var laptopsId = ObjectId("65d94f2f9a1d4a3b0c5a1k03");
-var smartphonesId = ObjectId("65d94f2f9a1d4a3b0c5a1k04");
-var mensWearId = ObjectId("65d94f2f9a1d4a3b0c5a1k05");
-var womensWearId = ObjectId("65d94f2f9a1d4a3b0c5a1k06");
+// categories 컬렉션에 데이터 삽입 (최상위 카테고리 "전자제품")
+db.categories.insertOne({
+    _id: catElectronics,
+    name: "전자제품",
+    parentId: null  // 최상위 카테고리
+});
 
-// categories 컬렉션에 데이터 삽입
-db.categories.insertMany([
-    {
-        _id: electronicsId,
-        name: "Electronics",
-        parentId: null // 최상위 카테고리
-    },
-    {
-        _id: clothingId,
-        name: "Clothing",
-        parentId: null // 최상위 카테고리
-    },
-    {
-        _id: laptopsId,
-        name: "Laptops",
-        parentId: electronicsId // "Electronics"의 하위 카테고리
-    },
-    {
-        _id: smartphonesId,
-        name: "Smartphones",
-        parentId: electronicsId // "Electronics"의 하위 카테고리
-    },
-    {
-        _id: mensWearId,
-        name: "Men's Wear",
-        parentId: clothingId // "Clothing"의 하위 카테고리
-    },
-    {
-        _id: womensWearId,
-        name: "Women's Wear",
-        parentId: clothingId // "Clothing"의 하위 카테고리
-    }
-]);
+// 하위 카테고리 (컴퓨터) 추가 (전자제품 카테고리의 하위 카테고리로 참조)
+db.categories.insertOne({
+    name: "컴퓨터",
+    parentId: catElectronics  // 전자제품 카테고리의 하위 카테고리
+});
+
+// 추가 카테고리 삽입 (컴퓨터 -> 노트북)
+var catLaptop = ObjectId();
+db.categories.insertOne({
+    _id: catLaptop,
+    name: "노트북",
+    parentId: catElectronics  // 전자제품 카테고리의 하위 카테고리
+});
+
+// 추가 카테고리 삽입 (노트북 -> 게이밍 노트북)
+db.categories.insertOne({
+    name: "게이밍 노트북",
+    parentId: catLaptop  // 노트북 카테고리의 하위 카테고리
+});
+
+// 다른 카테고리 예시 추가 (전자제품 -> 스마트폰)
+var catSmartphone = ObjectId();
+db.categories.insertOne({
+    _id: catSmartphone,
+    name: "스마트폰",
+    parentId: catElectronics  // 전자제품 카테고리의 하위 카테고리
+});
 
 
 // comments 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
@@ -461,247 +455,161 @@ db.comments.insertMany([
 
 // company_structure 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
-// 최상위 부서 ObjectId 생성
-var companyId = ObjectId("65d94f2f9a1d4a3b0c5a1m01");
-var hrDeptId = ObjectId("65d94f2f9a1d4a3b0c5a1m02");
-var itDeptId = ObjectId("65d94f2f9a1d4a3b0c5a1m03");
+// 최상위 회사 (ABC Corp) ObjectId 생성
+var companyId = ObjectId("67be62f943ddc4f2d8a34376");
 
-// 하위 부서 ObjectId 생성
-var recruitmentId = ObjectId("65d94f2f9a1d4a3b0c5a1m04");
-var payrollId = ObjectId("65d94f2f9a1d4a3b0c5a1m05");
-var devTeamId = ObjectId("65d94f2f9a1d4a3b0c5a1m06");
-var supportTeamId = ObjectId("65d94f2f9a1d4a3b0c5a1m07");
+// 회사 삽입 (최상위 노드)
+db.company_structure.insertOne({
+    _id: companyId,
+    name: "ABC Corp",
+    parentId: null  // 최상위 회사 (parentId: null)
+});
 
-// company_structure 컬렉션에 데이터 삽입
-db.company_structure.insertMany([
-    {
-        _id: companyId,
-        name: "ABC Corporation",
-        parentId: null, // 최상위 조직 (회사)
-        level: "Company"
-    },
-    {
-        _id: hrDeptId,
-        name: "Human Resources",
-        parentId: companyId, // ABC Corporation의 하위 부서
-        level: "Department"
-    },
-    {
-        _id: itDeptId,
-        name: "IT Department",
-        parentId: companyId, // ABC Corporation의 하위 부서
-        level: "Department"
-    },
-    {
-        _id: recruitmentId,
-        name: "Recruitment Team",
-        parentId: hrDeptId, // Human Resources의 하위 부서
-        level: "Team"
-    },
-    {
-        _id: payrollId,
-        name: "Payroll Team",
-        parentId: hrDeptId, // Human Resources의 하위 부서
-        level: "Team"
-    },
-    {
-        _id: devTeamId,
-        name: "Development Team",
-        parentId: itDeptId, // IT Department의 하위 부서
-        level: "Team"
-    },
-    {
-        _id: supportTeamId,
-        name: "Support Team",
-        parentId: itDeptId, // IT Department의 하위 부서
-        level: "Team"
-    }
-]);
+// 영업부 삽입 (ABC Corp의 하위 부서)
+var salesDeptId = ObjectId();
+db.company_structure.insertOne({
+    _id: salesDeptId,
+    name: "영업부",
+    parentId: companyId  // ABC Corp의 하위 부서
+});
 
+// 영업부의 하위 부서 추가 (영업팀)
+var salesTeamId = ObjectId();
+db.company_structure.insertOne({
+    _id: salesTeamId,
+    name: "영업팀",
+    parentId: salesDeptId  // 영업부의 하위 부서
+});
+
+// 영업부의 또 다른 하위 부서 추가 (마케팅팀)
+var marketingTeamId = ObjectId();
+db.company_structure.insertOne({
+    _id: marketingTeamId,
+    name: "마케팅팀",
+    parentId: salesDeptId  // 영업부의 하위 부서
+});
+
+// 개발부 삽입 (ABC Corp의 또 다른 하위 부서)
+var devDeptId = ObjectId();
+db.company_structure.insertOne({
+    _id: devDeptId,
+    name: "개발부",
+    parentId: companyId  // ABC Corp의 하위 부서
+});
+
+// 개발부의 하위 부서 추가 (프론트엔드팀)
+var frontendTeamId = ObjectId();
+db.company_structure.insertOne({
+    _id: frontendTeamId,
+    name: "프론트엔드팀",
+    parentId: devDeptId  // 개발부의 하위 부서
+});
+
+// 개발부의 또 다른 하위 부서 추가 (백엔드팀)
+var backendTeamId = ObjectId();
+db.company_structure.insertOne({
+    _id: backendTeamId,
+    name: "백엔드팀",
+    parentId: devDeptId  // 개발부의 하위 부서
+});
 
 // locations 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
-// 최상위 위치 (국가) ObjectId 생성
-var usaId = ObjectId("65d94f2f9a1d4a3b0c5a1n01");
-var canadaId = ObjectId("65d94f2f9a1d4a3b0c5a1n02");
+// 최상위 위치 (대한민국) ObjectId 생성
+var countryId = ObjectId("67be63453ed75d2e5dcd7c10");
 
-// 중간 계층 (도시) ObjectId 생성
-var newYorkId = ObjectId("65d94f2f9a1d4a3b0c5a1n03");
-var losAngelesId = ObjectId("65d94f2f9a1d4a3b0c5a1n04");
-var torontoId = ObjectId("65d94f2f9a1d4a3b0c5a1n05");
-var vancouverId = ObjectId("65d94f2f9a1d4a3b0c5a1n06");
+// locations 컬렉션에 최상위 위치 데이터 삽입
+db.locations.insertOne({
+    _id: countryId,
+    name: "대한민국",
+    parentId: null  // 최상위 위치 (국가)
+});
 
-// 하위 위치 (지점) ObjectId 생성
-var nyBranch1Id = ObjectId("65d94f2f9a1d4a3b0c5a1n07");
-var nyBranch2Id = ObjectId("65d94f2f9a1d4a3b0c5a1n08");
-var laBranch1Id = ObjectId("65d94f2f9a1d4a3b0c5a1n09");
-var torontoBranchId = ObjectId("65d94f2f9a1d4a3b0c5a1n10");
-var vancouverBranchId = ObjectId("65d94f2f9a1d4a3b0c5a1n11");
+// 하위 위치 추가 (서울특별시)
+db.locations.insertOne({
+    name: "서울특별시",
+    parentId: countryId  // 대한민국에 속하는 하위 위치
+});
 
-// locations 컬렉션에 데이터 삽입
-db.locations.insertMany([
-    {
-        _id: usaId,
-        name: "United States",
-        parentId: null, // 최상위 국가
-        level: "Country"
-    },
-    {
-        _id: canadaId,
-        name: "Canada",
-        parentId: null, // 최상위 국가
-        level: "Country"
-    },
-    {
-        _id: newYorkId,
-        name: "New York",
-        parentId: usaId, // 미국의 하위 도시
-        level: "City"
-    },
-    {
-        _id: losAngelesId,
-        name: "Los Angeles",
-        parentId: usaId, // 미국의 하위 도시
-        level: "City"
-    },
-    {
-        _id: torontoId,
-        name: "Toronto",
-        parentId: canadaId, // 캐나다의 하위 도시
-        level: "City"
-    },
-    {
-        _id: vancouverId,
-        name: "Vancouver",
-        parentId: canadaId, // 캐나다의 하위 도시
-        level: "City"
-    },
-    {
-        _id: nyBranch1Id,
-        name: "New York Branch 1",
-        parentId: newYorkId, // 뉴욕의 하위 지점
-        level: "Branch"
-    },
-    {
-        _id: nyBranch2Id,
-        name: "New York Branch 2",
-        parentId: newYorkId, // 뉴욕의 하위 지점
-        level: "Branch"
-    },
-    {
-        _id: laBranch1Id,
-        name: "Los Angeles Branch 1",
-        parentId: losAngelesId, // 로스앤젤레스의 하위 지점
-        level: "Branch"
-    },
-    {
-        _id: torontoBranchId,
-        name: "Toronto Branch",
-        parentId: torontoId, // 토론토의 하위 지점
-        level: "Branch"
-    },
-    {
-        _id: vancouverBranchId,
-        name: "Vancouver Branch",
-        parentId: vancouverId, // 밴쿠버의 하위 지점
-        level: "Branch"
-    }
-]);
+// 서울특별시의 하위 위치 (강남구) 추가
+var gangnamId = ObjectId();
+db.locations.insertOne({
+    _id: gangnamId,
+    name: "강남구",
+    parentId: countryId  // 대한민국에 속하는 하위 위치
+});
+
+// 강남구의 하위 위치 (역삼동) 추가
+var yeoksamId = ObjectId();
+db.locations.insertOne({
+    _id: yeoksamId,
+    name: "역삼동",
+    parentId: gangnamId  // 강남구에 속하는 하위 위치
+});
+
+// 또 다른 하위 위치 추가 (서울특별시 -> 종로구)
+var jongnoId = ObjectId();
+db.locations.insertOne({
+    _id: jongnoId,
+    name: "종로구",
+    parentId: countryId  // 대한민국에 속하는 하위 위치
+});
 
 
 // menus 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
-// 최상위 메뉴 (카테고리) ObjectId 생성
-var mainMenuId = ObjectId("65d94f2f9a1d4a3b0c5a1m01");
-var drinksMenuId = ObjectId("65d94f2f9a1d4a3b0c5a1m02");
-var foodMenuId = ObjectId("65d94f2f9a1d4a3b0c5a1m03");
+// 최상위 메뉴 (대시보드) ObjectId 생성
+var dashboardId = ObjectId("67be640135f8904d92475f89");
 
-// 서브 메뉴 ObjectId 생성
-var hotDrinksId = ObjectId("65d94f2f9a1d4a3b0c5a1m04");
-var coldDrinksId = ObjectId("65d94f2f9a1d4a3b0c5a1m05");
-var appetizersId = ObjectId("65d94f2f9a1d4a3b0c5a1m06");
-var mainDishesId = ObjectId("65d94f2f9a1d4a3b0c5a1m07");
+// 대시보드 메뉴 삽입 (최상위 메뉴)
+db.menus.insertOne({
+    _id: dashboardId,
+    name: "Dashboard",
+    url: "/dashboard",
+    parentId: null  // 최상위 메뉴
+});
 
-// 메뉴 아이템 ObjectId 생성
-var coffeeId = ObjectId("65d94f2f9a1d4a3b0c5a1m08");
-var teaId = ObjectId("65d94f2f9a1d4a3b0c5a1m09");
-var juiceId = ObjectId("65d94f2f9a1d4a3b0c5a1m10");
-var pizzaId = ObjectId("65d94f2f9a1d4a3b0c5a1m11");
-var burgerId = ObjectId("65d94f2f9a1d4a3b0c5a1m12");
+// 제품 메뉴 삽입 (최상위 메뉴)
+var productsId = ObjectId();
+db.menus.insertOne({
+    _id: productsId,
+    name: "Products",
+    url: "/products",
+    parentId: null  // 최상위 메뉴
+});
 
-// menus 컬렉션에 데이터 삽입
-db.menus.insertMany([
-    {
-        _id: mainMenuId,
-        name: "Main Menu",
-        parentId: null, // 최상위 메뉴
-        level: "Category"
-    },
-    {
-        _id: drinksMenuId,
-        name: "Drinks",
-        parentId: mainMenuId, // Main Menu의 하위 메뉴
-        level: "Category"
-    },
-    {
-        _id: foodMenuId,
-        name: "Food",
-        parentId: mainMenuId, // Main Menu의 하위 메뉴
-        level: "Category"
-    },
-    {
-        _id: hotDrinksId,
-        name: "Hot Drinks",
-        parentId: drinksMenuId, // Drinks의 하위 서브 메뉴
-        level: "Subcategory"
-    },
-    {
-        _id: coldDrinksId,
-        name: "Cold Drinks",
-        parentId: drinksMenuId, // Drinks의 하위 서브 메뉴
-        level: "Subcategory"
-    },
-    {
-        _id: appetizersId,
-        name: "Appetizers",
-        parentId: foodMenuId, // Food의 하위 서브 메뉴
-        level: "Subcategory"
-    },
-    {
-        _id: mainDishesId,
-        name: "Main Dishes",
-        parentId: foodMenuId, // Food의 하위 서브 메뉴
-        level: "Subcategory"
-    },
-    {
-        _id: coffeeId,
-        name: "Coffee",
-        parentId: hotDrinksId, // Hot Drinks의 하위 아이템
-        level: "Item"
-    },
-    {
-        _id: teaId,
-        name: "Tea",
-        parentId: hotDrinksId, // Hot Drinks의 하위 아이템
-        level: "Item"
-    },
-    {
-        _id: juiceId,
-        name: "Juice",
-        parentId: coldDrinksId, // Cold Drinks의 하위 아이템
-        level: "Item"
-    },
-    {
-        _id: pizzaId,
-        name: "Pizza",
-        parentId: appetizersId, // Appetizers의 하위 아이템
-        level: "Item"
-    },
-    {
-        _id: burgerId,
-        name: "Burger",
-        parentId: mainDishesId, // Main Dishes의 하위 아이템
-        level: "Item"
-    }
-]);
+// 하위 메뉴 추가 (Products -> Electronics)
+var electronicsId = ObjectId();
+db.menus.insertOne({
+    _id: electronicsId,
+    name: "Electronics",
+    url: "/products/electronics",
+    parentId: productsId  // Products 메뉴의 하위 메뉴
+});
 
+// Electronics 메뉴 하위 메뉴 추가 (Electronics -> Smartphones)
+var smartphonesId = ObjectId();
+db.menus.insertOne({
+    _id: smartphonesId,
+    name: "Smartphones",
+    url: "/products/electronics/smartphones",
+    parentId: electronicsId  // Electronics 메뉴의 하위 메뉴
+});
+
+// Electronics 메뉴 하위 메뉴 추가 (Electronics -> Laptops)
+var laptopsId = ObjectId();
+db.menus.insertOne({
+    _id: laptopsId,
+    name: "Laptops",
+    url: "/products/electronics/laptops",
+    parentId: electronicsId  // Electronics 메뉴의 하위 메뉴
+});
+
+// 또 다른 메뉴 삽입 (Products -> Furniture)
+var furnitureId = ObjectId();
+db.menus.insertOne({
+    _id: furnitureId,
+    name: "Furniture",
+    url: "/products/furniture",
+    parentId: productsId  // Products 메뉴의 하위 메뉴
+});
