@@ -112,16 +112,23 @@ db.reviews.insertMany([
 // 2. Link 구조
 // users 컬렉션과 orders 컬렉션을 참조(Reference) 관계로 설정하고 데이터 삽입하시오.
 
-const usersResult = db.users.insertMany([
-    { name: "Sean", age: 35, email: "Sean@gmail.com" },
-    { name: "Bob", age: 28, email: "Bob@gmail.com" },
-    { name: "James", age: 47, email: "James@gmail.com" }
+// 각 사용자 ObjectId 생성
+var userId1 = ObjectId();
+var userId2 = ObjectId();
+var userId3 = ObjectId();
+
+// users 컬렉션에 데이터 삽입 (ObjectId 값을 명시적으로 설정)
+db.users.insertMany([
+    { _id: ObjectId("65d94f2f9a1d4a3b0c5a1b01"), name: "Sean", age: 35, email: "Sean@gmail.com" },
+    { _id: ObjectId("65d94f2f9a1d4a3b0c5a1b02"), name: "Bob", age: 28, email: "Bob@gmail.com" },
+    { _id: ObjectId("65d94f2f9a1d4a3b0c5a1b03"), name: "James", age: 47, email: "James@gmail.com" }
 ]);
 
+// orders 컬렉션에 데이터 삽입 (users 컬렉션 참조)
 db.orders.insertMany([
     {
         orderId: "ord003",
-        userId: usersResult.insertedIds[0],
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1b01"),  // Sean의 _id 참조
         items: [
             { productId: "prd003", name: "Laptop", quantity: 1, price: 1500 },
             { productId: "prd005", name: "Mouse", quantity: 2, price: 30 }
@@ -129,291 +136,572 @@ db.orders.insertMany([
     },
     {
         orderId: "ord005",
-        userId: usersResult.insertedIds[1],
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1b02"),  // Bob의 _id 참조
         items: [
-            { productId: "prd005", name: "Keyboard", quantity: 1, price: 50 }
+            { productId: "prd006", name: "Keyboard", quantity: 1, price: 50 }
         ]
     },
     {
         orderId: "ord007",
-        userId: usersResult.insertedIds[2],
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1b03"),  // James의 _id 참조
         items: [
-            { productId: "prd007", name: "Moniter", quantity: 3, price: 350 }
+            { productId: "prd007", name: "Monitor", quantity: 3, price: 350 }
         ]
     }
 ]);
 
+
 // posts 컬렉션과 comments 컬렉션을 참조(Reference) 관계로 설정하고 데이터 삽입하시오.
 
-const postsResult = db.posts.insertMany([
+// 각 게시글 ObjectId 생성
+var postId1 = ObjectId("65d94f2f9a1d4a3b0c5a1c01");
+var postId2 = ObjectId("65d94f2f9a1d4a3b0c5a1c02");
+
+// posts 컬렉션에 데이터 삽입
+db.posts.insertMany([
     {
-        title: "My First Post",
-        content: "This is the content of my first post.",
-        author: "Sean"
+        _id: postId1,
+        title: "MongoDB Reference Example",
+        content: "This is a post about MongoDB references.",
+        author: "Alice",
+        createdAt: new Date()
     },
     {
-        title: "MongoDB Tips",
-        content: "Some useful tips for MongoDB.",
-        author: "James"
+        _id: postId2,
+        title: "Understanding NoSQL",
+        content: "This post explains the basics of NoSQL databases.",
+        author: "Bob",
+        createdAt: new Date()
     }
 ]);
 
+// comments 컬렉션에 데이터 삽입 (posts 컬렉션 참조)
 db.comments.insertMany([
     {
-        postId: postsResult.insertedIds["0"],  // 첫 번째 게시글의 _id 참조
-        commentText: "Great post! Really enjoyed it.",
-        user: "Charlie",
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1d01"),
+        postId: postId1,  // 첫 번째 게시글 참조
+        author: "John",
+        text: "Great explanation!",
         createdAt: new Date()
     },
     {
-        postId: postsResult.insertedIds["0"],
-        commentText: "Thanks for sharing!",
-        user: "David",
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1d02"),
+        postId: postId1,  // 첫 번째 게시글 참조
+        author: "Emma",
+        text: "Very helpful, thanks!",
         createdAt: new Date()
     },
     {
-        postId: postsResult.insertedIds["1"],  // 두 번째 게시글의 _id 참조
-        commentText: "Very useful tips, thanks.",
-        user: "Eve",
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1d03"),
+        postId: postId2,  // 두 번째 게시글 참조
+        author: "Liam",
+        text: "I finally understand NoSQL!",
         createdAt: new Date()
     }
 ]);
 
 // students 컬렉션과 courses 컬렉션을 참조(Reference) 관계로 설정하고 데이터 삽입하시오.
 
-const coursesResult = db.courses.insertMany([
-    { name: "MongoDB Basics", instructor: "Dr.Hong", credits: 3 },
-    { name: "Advanced JavaScript", instructor: "Prof.Son", credits: 5 },
-    { name: "Data Structures", instructor: "Dr.Lee", credits: 7 }
-])
+// 각 학생 ObjectId 생성
+var studentId1 = ObjectId("65d94f2f9a1d4a3b0c5a1e01");
+var studentId2 = ObjectId("65d94f2f9a1d4a3b0c5a1e02");
+var studentId3 = ObjectId("65d94f2f9a1d4a3b0c5a1e03");
 
+// students 컬렉션에 데이터 삽입
 db.students.insertMany([
     {
-        name: "Kate",
+        _id: studentId1,
+        name: "Alice",
         age: 22,
-        major: "Computer Science",
-        courses: [coursesResult.insertedIds[0], coursesResult.insertedIds[1]]
+        email: "alice@example.com"
     },
     {
-        name: "Tommy",
-        age: 27,
-        major: "Software Enginnering",
-        courses: [coursesResult.insertedIds[0], coursesResult.insertedIds[1]]
+        _id: studentId2,
+        name: "Bob",
+        age: 24,
+        email: "bob@example.com"
     },
     {
+        _id: studentId3,
         name: "Charlie",
-        age: 25,
-        major: "Musical",
-        courses: [coursesResult.insertedIds[0], coursesResult.insertedIds[1]]
-
+        age: 23,
+        email: "charlie@example.com"
     }
 ]);
+
+// courses 컬렉션에 데이터 삽입 (students 컬렉션 참조)
+db.courses.insertMany([
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1f01"),
+        studentId: studentId1,  // Alice의 _id 참조
+        courseName: "Database Systems",
+        credits: 3,
+        semester: "Spring 2025"
+    },
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1f02"),
+        studentId: studentId2,  // Bob의 _id 참조
+        courseName: "Machine Learning",
+        credits: 4,
+        semester: "Spring 2025"
+    },
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1f03"),
+        studentId: studentId3,  // Charlie의 _id 참조
+        courseName: "Computer Networks",
+        credits: 3,
+        semester: "Fall 2025"
+    }
+]);
+
 
 // employees 컬렉션과 departments 컬렉션을 참조(Reference) 관계로 설정하고 데이터 삽입하시오.
 
-const departmentsResult = db.departments.insertMany([
-    { name: "Engineering", location: "Seoul" },
-    { name: "Marketing", location: "Busan" },
-    { name: "HR", location: "Incheon" }
-]);
+// 각 부서 ObjectId 생성
+var departmentId1 = ObjectId("65d94f2f9a1d4a3b0c5a1g01");
+var departmentId2 = ObjectId("65d94f2f9a1d4a3b0c5a1g02");
+var departmentId3 = ObjectId("65d94f2f9a1d4a3b0c5a1g03");
 
-// employees 컬렉션에 직원 데이터 삽입 (부서 ID를 참조)
-db.employees.insertMany([
+// departments 컬렉션에 데이터 삽입
+db.departments.insertMany([
     {
-        name: "Alice Kim",
-        position: "Software Engineer",
-        salary: 75000,
-        departmentId: departmentsResult.insertedIds["0"] // Engineering 부서
+        _id: departmentId1,
+        name: "Engineering",
+        location: "Building A"
     },
     {
-        name: "Bob Lee",
-        position: "Marketing Manager",
-        salary: 68000,
-        departmentId: departmentsResult.insertedIds["1"] // Marketing 부서
+        _id: departmentId2,
+        name: "Marketing",
+        location: "Building B"
     },
     {
-        name: "Charlie Park",
-        position: "HR Specialist",
-        salary: 60000,
-        departmentId: departmentsResult.insertedIds["2"] // HR 부서
+        _id: departmentId3,
+        name: "Human Resources",
+        location: "Building C"
     }
 ]);
+
+// employees 컬렉션에 데이터 삽입 (departments 컬렉션 참조)
+db.employees.insertMany([
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1h01"),
+        name: "Alice",
+        age: 30,
+        email: "alice@company.com",
+        departmentId: departmentId1 // Engineering 부서 참조
+    },
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1h02"),
+        name: "Bob",
+        age: 35,
+        email: "bob@company.com",
+        departmentId: departmentId2 // Marketing 부서 참조
+    },
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1h03"),
+        name: "Charlie",
+        age: 28,
+        email: "charlie@company.com",
+        departmentId: departmentId3 // Human Resources 부서 참조
+    }
+]);
+
 
 
 // doctors 컬렉션과 patients 컬렉션을 참조(Reference) 관계로 설정하고 데이터 삽입하시오.
 
-const doctorsResult = db.doctors.insertMany([
-    { name: "Dr.kim", speciality: "Cardiology", hospital: "Seoul General Hospital" },
-    { name: "Dr.Hong", speciality: "Dermatology", hospital: "Busan Skin Clinic" },
-    { name: "Dr.Choi", speciality: "Pediatrics", hospital: "Incheon Children's Hospital" }
-]);
+// 각 의사 ObjectId 생성
+var doctorId1 = ObjectId("65d94f2f9a1d4a3b0c5a1i01");
+var doctorId2 = ObjectId("65d94f2f9a1d4a3b0c5a1i02");
+var doctorId3 = ObjectId("65d94f2f9a1d4a3b0c5a1i03");
 
-// patients 컬렉션에 환자 데이터 삽입 (담당 의사 ID를 참조)
-db.patients.insertMany([
+// doctors 컬렉션에 데이터 삽입
+db.doctors.insertMany([
     {
-        name: "Alice Kim",
-        age: 29,
-        condition: "Hypertension",
-        doctorId: doctorsResult.insertedIds["0"] // Dr. Kim (Cardiology)
+        _id: doctorId1,
+        name: "Dr. Smith",
+        specialty: "Cardiology",
+        email: "smith@hospital.com"
     },
     {
-        name: "Bob Lee",
-        age: 35,
-        condition: "Eczema",
-        doctorId: doctorsResult.insertedIds["1"] // Dr. Lee (Dermatology)
+        _id: doctorId2,
+        name: "Dr. Johnson",
+        specialty: "Neurology",
+        email: "johnson@hospital.com"
     },
     {
-        name: "Charlie Park",
-        age: 10,
-        condition: "Flu",
-        doctorId: doctorsResult.insertedIds["2"] // Dr. Park (Pediatrics)
+        _id: doctorId3,
+        name: "Dr. Son",
+        specialty: "Pediatrics",
+        email: "lee@hospital.com"
     }
 ]);
+
+// patients 컬렉션에 데이터 삽입 (doctors 컬렉션 참조)
+db.patients.insertMany([
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1j01"),
+        name: "Sean",
+        age: 45,
+        email: "Sean@patient.com",
+        doctorId: doctorId1 // Dr. Smith 참조 (심장내과)
+    },
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1j02"),
+        name: "Bob",
+        age: 38,
+        email: "bob@patient.com",
+        doctorId: doctorId2 // Dr. Johnson 참조 (신경과)
+    },
+    {
+        _id: ObjectId("65d94f2f9a1d4a3b0c5a1j03"),
+        name: "Charlie",
+        age: 10,
+        email: "charlie@patient.com",
+        doctorId: doctorId3 // Dr. Son 참조 (소아과)
+    }
+]);
+
 
 
 // 3. 계층형 데이터 구조
 // categories 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
+// 최상위 카테고리 ObjectId 생성
+var electronicsId = ObjectId("65d94f2f9a1d4a3b0c5a1k01");
+var clothingId = ObjectId("65d94f2f9a1d4a3b0c5a1k02");
+
+// 하위 카테고리 ObjectId 생성
+var laptopsId = ObjectId("65d94f2f9a1d4a3b0c5a1k03");
+var smartphonesId = ObjectId("65d94f2f9a1d4a3b0c5a1k04");
+var mensWearId = ObjectId("65d94f2f9a1d4a3b0c5a1k05");
+var womensWearId = ObjectId("65d94f2f9a1d4a3b0c5a1k06");
+
+// categories 컬렉션에 데이터 삽입
 db.categories.insertMany([
-    { _id: 1, name: "Electronics", parentId: null},
-    { _id: 2, name: "Computers", parentId: 1},
-    { _id: 3, name: "Laptops", parentId: 2},
-    { _id: 4, name: "Desktops", parentId: 2},
-    { _id: 5, name: "Smartphones", parentId: 1},
-    { _id: 6, name: "Accessories", parentId: 1},
-    { _id: 7, name: "Headphones", parentId: 6},
-    { _id: 8, name: "Chargers", parentId: 6},
-])
-
-db.categories.find().pretty();
-
-db.categories.find({ parentId:1 }).pretty();
-
-db.categories.aggregate([
     {
-      $graphLookup: {
-        from: "categories",
-        startWith: "$_id",
-        connectFromField: "_id",
-        connectToField: "parentId",
-        as: "subcategories"
-      }
+        _id: electronicsId,
+        name: "Electronics",
+        parentId: null // 최상위 카테고리
+    },
+    {
+        _id: clothingId,
+        name: "Clothing",
+        parentId: null // 최상위 카테고리
+    },
+    {
+        _id: laptopsId,
+        name: "Laptops",
+        parentId: electronicsId // "Electronics"의 하위 카테고리
+    },
+    {
+        _id: smartphonesId,
+        name: "Smartphones",
+        parentId: electronicsId // "Electronics"의 하위 카테고리
+    },
+    {
+        _id: mensWearId,
+        name: "Men's Wear",
+        parentId: clothingId // "Clothing"의 하위 카테고리
+    },
+    {
+        _id: womensWearId,
+        name: "Women's Wear",
+        parentId: clothingId // "Clothing"의 하위 카테고리
     }
-  ]).pretty();
+]);
+
 
 // comments 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
+// 최상위 댓글 ObjectId 생성
+var commentId1 = ObjectId("65d94f2f9a1d4a3b0c5a1l01");
+var commentId2 = ObjectId("65d94f2f9a1d4a3b0c5a1l02");
+
+// 대댓글(답글) ObjectId 생성
+var replyId1 = ObjectId("65d94f2f9a1d4a3b0c5a1l03");
+var replyId2 = ObjectId("65d94f2f9a1d4a3b0c5a1l04");
+
+// comments 컬렉션에 데이터 삽입
 db.comments.insertMany([
-    {_id: 1, text: "첫 번째 댓글입니다.", user: "Sean", postId: 100, parentId: null, createdAt: new Date()},
-    {_id: 2, text: "두 번째 댓글입니다.", user: "Alice", postId: 100, parentId: null, createdAt: new Date()},
-    {_id: 3, text: "첫 번째 댓글의 대댓글입니다.", user: "Charlie", postId: 100, parentId: 1, createdAt: new Date()},
-    {_id: 4, text: "첫 번째 댓글의 또 다른 대댓글입니다.", user: "Dave", postId: 100, parentId: 1, createdAt: new Date()},
-    {_id: 5, text: "대댓글의 대댓글입니다.", user: "Eve", postId: 100, parentId: 3, createdAt: new Date()},
-    {_id: 6, text: "두 번째 댓글의 대댓글입니다.", user: "Frank", postId: 100, parentId: 2, createdAt: new Date()},
-])
-
-db.comments.find().pretty();
-
-db.comments.find({ parentId: 1}).pretty();
-
-db.comments.aggregate([
     {
-      $graphLookup: {
-        from: "comments",
-        startWith: "$_id",
-        connectFromField: "_id",
-        connectToField: "parentId",
-        as: "replies"
-      }
+        _id: commentId1,
+        postId: ObjectId("65d94f2f9a1d4a3b0c5a1p01"), // 특정 게시글 참조
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1u01"), // 댓글 작성자 참조
+        content: "This is the first comment.",
+        parentId: null, // 최상위 댓글
+        createdAt: new Date()
+    },
+    {
+        _id: commentId2,
+        postId: ObjectId("65d94f2f9a1d4a3b0c5a1p01"), // 동일 게시글 참조
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1u02"), // 다른 작성자
+        content: "This is another top-level comment.",
+        parentId: null, // 최상위 댓글
+        createdAt: new Date()
+    },
+    {
+        _id: replyId1,
+        postId: ObjectId("65d94f2f9a1d4a3b0c5a1p01"), // 동일 게시글 참조
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1u03"), // 답글 작성자
+        content: "This is a reply to the first comment.",
+        parentId: commentId1, // 첫 번째 댓글의 대댓글
+        createdAt: new Date()
+    },
+    {
+        _id: replyId2,
+        postId: ObjectId("65d94f2f9a1d4a3b0c5a1p01"), // 동일 게시글 참조
+        userId: ObjectId("65d94f2f9a1d4a3b0c5a1u01"), // 원 댓글 작성자가 답글을 다시 답
+        content: "This is a reply to the second comment.",
+        parentId: commentId2, // 두 번째 댓글의 대댓글
+        createdAt: new Date()
     }
-  ]).pretty();
+]);
+
 
 // company_structure 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
+// 최상위 부서 ObjectId 생성
+var companyId = ObjectId("65d94f2f9a1d4a3b0c5a1m01");
+var hrDeptId = ObjectId("65d94f2f9a1d4a3b0c5a1m02");
+var itDeptId = ObjectId("65d94f2f9a1d4a3b0c5a1m03");
+
+// 하위 부서 ObjectId 생성
+var recruitmentId = ObjectId("65d94f2f9a1d4a3b0c5a1m04");
+var payrollId = ObjectId("65d94f2f9a1d4a3b0c5a1m05");
+var devTeamId = ObjectId("65d94f2f9a1d4a3b0c5a1m06");
+var supportTeamId = ObjectId("65d94f2f9a1d4a3b0c5a1m07");
+
+// company_structure 컬렉션에 데이터 삽입
 db.company_structure.insertMany([
-    { _id: 1, name: "Alice", position: "CEO", department: "Management", parentId: null, createdAt: new Date() },
-    { _id: 2, name: "Bob", position: "CTO", department: "Technology", parentId: 1, createdAt: new Date() },
-    { _id: 3, name: "Charlie", position: "CFO", department: "Finance", parentId: 1, createdAt: new Date() },
-    { _id: 4, name: "David", position: "Engineering Manager", department: "Technology", parentId: 2, createdAt: new Date() },
-    { _id: 5, name: "Eve", position: "Software Engineer", department: "Technology", parentId: 4, createdAt: new Date() },
-    { _id: 6, name: "Frank", position: "HR Manager", department: "HR", parentId: 1, createdAt: new Date() },
-    { _id: 7, name: "Grace", position: "Accountant", department: "Finance", parentId: 3, createdAt: new Date() }
-  ]);
-
-db.company_structure.find().pretty();
-
-db.company_structure.find({ parentId: 1 }).pretty();
-
-db.company_structure.findOne({ _id: 5 }).parentId;
-
-db.company_structure.aggregate([
     {
-      $graphLookup: {
-        from: "company_structure",
-        startWith: "$_id",
-        connectFromField: "_id",
-        connectToField: "parentId",
-        as: "subordinates"
-      }
+        _id: companyId,
+        name: "ABC Corporation",
+        parentId: null, // 최상위 조직 (회사)
+        level: "Company"
+    },
+    {
+        _id: hrDeptId,
+        name: "Human Resources",
+        parentId: companyId, // ABC Corporation의 하위 부서
+        level: "Department"
+    },
+    {
+        _id: itDeptId,
+        name: "IT Department",
+        parentId: companyId, // ABC Corporation의 하위 부서
+        level: "Department"
+    },
+    {
+        _id: recruitmentId,
+        name: "Recruitment Team",
+        parentId: hrDeptId, // Human Resources의 하위 부서
+        level: "Team"
+    },
+    {
+        _id: payrollId,
+        name: "Payroll Team",
+        parentId: hrDeptId, // Human Resources의 하위 부서
+        level: "Team"
+    },
+    {
+        _id: devTeamId,
+        name: "Development Team",
+        parentId: itDeptId, // IT Department의 하위 부서
+        level: "Team"
+    },
+    {
+        _id: supportTeamId,
+        name: "Support Team",
+        parentId: itDeptId, // IT Department의 하위 부서
+        level: "Team"
     }
-  ]).pretty();
+]);
+
 
 // locations 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
+// 최상위 위치 (국가) ObjectId 생성
+var usaId = ObjectId("65d94f2f9a1d4a3b0c5a1n01");
+var canadaId = ObjectId("65d94f2f9a1d4a3b0c5a1n02");
+
+// 중간 계층 (도시) ObjectId 생성
+var newYorkId = ObjectId("65d94f2f9a1d4a3b0c5a1n03");
+var losAngelesId = ObjectId("65d94f2f9a1d4a3b0c5a1n04");
+var torontoId = ObjectId("65d94f2f9a1d4a3b0c5a1n05");
+var vancouverId = ObjectId("65d94f2f9a1d4a3b0c5a1n06");
+
+// 하위 위치 (지점) ObjectId 생성
+var nyBranch1Id = ObjectId("65d94f2f9a1d4a3b0c5a1n07");
+var nyBranch2Id = ObjectId("65d94f2f9a1d4a3b0c5a1n08");
+var laBranch1Id = ObjectId("65d94f2f9a1d4a3b0c5a1n09");
+var torontoBranchId = ObjectId("65d94f2f9a1d4a3b0c5a1n10");
+var vancouverBranchId = ObjectId("65d94f2f9a1d4a3b0c5a1n11");
+
+// locations 컬렉션에 데이터 삽입
 db.locations.insertMany([
-    { _id:1, name: "Korea", type: "Country", parentId: null, createdAt: new Date() },
-    { _id:2, name: "Seoul", type: "City", parentId: 1, createdAt: new Date() },
-    { _id:3, name: "Busan", type: "Country", parentId: 1, createdAt: new Date() },
-    { _id:4, name: "Gangnam-gu", type: "District", parentId: 2, createdAt: new Date() },
-    { _id:5, name: "Jongno-gu", type: "District", parentId: 2, createdAt: new Date() },
-    { _id:6, name: "Haeundae-gu", type: "District", parentId: 3, createdAt: new Date() },
-    { _id:7, name: "Gijang-gun", type: "District", parentId: 3, createdAt: new Date() }
+    {
+        _id: usaId,
+        name: "United States",
+        parentId: null, // 최상위 국가
+        level: "Country"
+    },
+    {
+        _id: canadaId,
+        name: "Canada",
+        parentId: null, // 최상위 국가
+        level: "Country"
+    },
+    {
+        _id: newYorkId,
+        name: "New York",
+        parentId: usaId, // 미국의 하위 도시
+        level: "City"
+    },
+    {
+        _id: losAngelesId,
+        name: "Los Angeles",
+        parentId: usaId, // 미국의 하위 도시
+        level: "City"
+    },
+    {
+        _id: torontoId,
+        name: "Toronto",
+        parentId: canadaId, // 캐나다의 하위 도시
+        level: "City"
+    },
+    {
+        _id: vancouverId,
+        name: "Vancouver",
+        parentId: canadaId, // 캐나다의 하위 도시
+        level: "City"
+    },
+    {
+        _id: nyBranch1Id,
+        name: "New York Branch 1",
+        parentId: newYorkId, // 뉴욕의 하위 지점
+        level: "Branch"
+    },
+    {
+        _id: nyBranch2Id,
+        name: "New York Branch 2",
+        parentId: newYorkId, // 뉴욕의 하위 지점
+        level: "Branch"
+    },
+    {
+        _id: laBranch1Id,
+        name: "Los Angeles Branch 1",
+        parentId: losAngelesId, // 로스앤젤레스의 하위 지점
+        level: "Branch"
+    },
+    {
+        _id: torontoBranchId,
+        name: "Toronto Branch",
+        parentId: torontoId, // 토론토의 하위 지점
+        level: "Branch"
+    },
+    {
+        _id: vancouverBranchId,
+        name: "Vancouver Branch",
+        parentId: vancouverId, // 밴쿠버의 하위 지점
+        level: "Branch"
+    }
 ]);
 
-db.locations.find().pretty();
-
-db.locations.find({ parentId: 1 }).pretty();
-
-db.locations.aggregate([
-    {
-      $graphLookup: {
-        from: "locations",
-        startWith: "$_id",
-        connectFromField: "_id",
-        connectToField: "parentId",
-        as: "subLocations"
-      }
-    }
-  ]).pretty();
 
 // menus 컬렉션을 계층 구조(parentId 필드 포함)로 생성하고 데이터 삽입하시오.
 
+// 최상위 메뉴 (카테고리) ObjectId 생성
+var mainMenuId = ObjectId("65d94f2f9a1d4a3b0c5a1m01");
+var drinksMenuId = ObjectId("65d94f2f9a1d4a3b0c5a1m02");
+var foodMenuId = ObjectId("65d94f2f9a1d4a3b0c5a1m03");
+
+// 서브 메뉴 ObjectId 생성
+var hotDrinksId = ObjectId("65d94f2f9a1d4a3b0c5a1m04");
+var coldDrinksId = ObjectId("65d94f2f9a1d4a3b0c5a1m05");
+var appetizersId = ObjectId("65d94f2f9a1d4a3b0c5a1m06");
+var mainDishesId = ObjectId("65d94f2f9a1d4a3b0c5a1m07");
+
+// 메뉴 아이템 ObjectId 생성
+var coffeeId = ObjectId("65d94f2f9a1d4a3b0c5a1m08");
+var teaId = ObjectId("65d94f2f9a1d4a3b0c5a1m09");
+var juiceId = ObjectId("65d94f2f9a1d4a3b0c5a1m10");
+var pizzaId = ObjectId("65d94f2f9a1d4a3b0c5a1m11");
+var burgerId = ObjectId("65d94f2f9a1d4a3b0c5a1m12");
+
+// menus 컬렉션에 데이터 삽입
 db.menus.insertMany([
-    { _id: 1, name: "Home", url: "/", parentId: null, order: 1, createdAt: new Date() },
-    { _id: 2, name: "Products", url: "/products", parentId: null, order: 2, createdAt: new Date() },
-    { _id: 3, name: "Electronics", url: "/products/electronics", parentId: 2, order: 1, createdAt: new Date() },
-    { _id: 4, name: "Laptops", url: "/products/electronics/laptops", parentId: 3, order: 1, createdAt: new Date() },
-    { _id: 5, name: "Smartphones", url: "/products/electronics/smartphones", parentId: 3, order: 2, createdAt: new Date() },
-    { _id: 6, name: "Clothing", url: "/products/clothing", parentId: 2, order: 2, createdAt: new Date() },
-    { _id: 7, name: "About Us", url: "/about", parentId: null, order: 3, createdAt: new Date() },
-    { _id: 8, name: "Contact", url: "/contact", parentId: null, order: 4, createdAt: new Date() }
-  ]);
-  
-db.menus.find().pretty();
-
-db.menus.find({ parentId: null }).sort({ order: 1 }).pretty();
-
-db.menus.find({ parentId: 2 }).sort({ order: 1 }).pretty();
-
-db.menus.aggregate([
     {
-      $graphLookup: {
-        from: "menus",
-        startWith: "$_id",
-        connectFromField: "_id",
-        connectToField: "parentId",
-        as: "subMenus"
-      }
+        _id: mainMenuId,
+        name: "Main Menu",
+        parentId: null, // 최상위 메뉴
+        level: "Category"
+    },
+    {
+        _id: drinksMenuId,
+        name: "Drinks",
+        parentId: mainMenuId, // Main Menu의 하위 메뉴
+        level: "Category"
+    },
+    {
+        _id: foodMenuId,
+        name: "Food",
+        parentId: mainMenuId, // Main Menu의 하위 메뉴
+        level: "Category"
+    },
+    {
+        _id: hotDrinksId,
+        name: "Hot Drinks",
+        parentId: drinksMenuId, // Drinks의 하위 서브 메뉴
+        level: "Subcategory"
+    },
+    {
+        _id: coldDrinksId,
+        name: "Cold Drinks",
+        parentId: drinksMenuId, // Drinks의 하위 서브 메뉴
+        level: "Subcategory"
+    },
+    {
+        _id: appetizersId,
+        name: "Appetizers",
+        parentId: foodMenuId, // Food의 하위 서브 메뉴
+        level: "Subcategory"
+    },
+    {
+        _id: mainDishesId,
+        name: "Main Dishes",
+        parentId: foodMenuId, // Food의 하위 서브 메뉴
+        level: "Subcategory"
+    },
+    {
+        _id: coffeeId,
+        name: "Coffee",
+        parentId: hotDrinksId, // Hot Drinks의 하위 아이템
+        level: "Item"
+    },
+    {
+        _id: teaId,
+        name: "Tea",
+        parentId: hotDrinksId, // Hot Drinks의 하위 아이템
+        level: "Item"
+    },
+    {
+        _id: juiceId,
+        name: "Juice",
+        parentId: coldDrinksId, // Cold Drinks의 하위 아이템
+        level: "Item"
+    },
+    {
+        _id: pizzaId,
+        name: "Pizza",
+        parentId: appetizersId, // Appetizers의 하위 아이템
+        level: "Item"
+    },
+    {
+        _id: burgerId,
+        name: "Burger",
+        parentId: mainDishesId, // Main Dishes의 하위 아이템
+        level: "Item"
     }
-  ]).pretty();
-  
+]);
+
