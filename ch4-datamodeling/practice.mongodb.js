@@ -4,6 +4,8 @@
 // users 컬렉션을 생성하고, name, age, address 필드를 가진 문서를 삽입하시오.
 
 db.createCollection("users")
+
+//예시1
 db.users.insertOne({
     name: "Son",
     age: 28,
@@ -14,9 +16,24 @@ db.users.insertOne({
     }
 })
 
+//예시2
+db.users.insertOne({
+    name: "John Doe",
+    age: 30,
+    address: {
+        street: "123 Main St",
+        city: "New York",
+        state: "NY",
+        zip: "10001"
+    }
+});
+
+
 // products 컬렉션에 name, price, manufacturer 필드를 가진 문서를 삽입하시오.
 
 db.createCollection("products")
+
+//예시1
 db.products.insertOne({
     name: "Son",
     price: 29.99,
@@ -24,9 +41,31 @@ db.products.insertOne({
 
 })
 
+//예시2
+db.products.insertMany([
+    {
+        name: "Smartphone",
+        price: 800,
+        manufacturer: "XYZ Tech"
+    },
+    {
+        name: "Tablet",
+        price: 400,
+        manufacturer: "TechWorld"
+    },
+    {
+        name: "Headphones",
+        price: 150,
+        manufacturer: "SoundCo"
+    }
+]);
+
+
 // orders 컬렉션에 주문 정보(orderId, userId, items)를 Embedded Document로 삽입하시오.
 
 db.createCollection("orders")
+
+//예시1
 db.orders.insertMany({
     orderId: "ord001",
     userId: "swh001",
@@ -50,9 +89,23 @@ db.orders.insertMany({
     }]
 })
 
+//예시2
+db.orders.insertOne({
+    orderId: "ORD001",
+    userId: "David",
+    items: [
+        { productId: "PROD001", name: "Laptop", quantity: 1, price: 1200 },
+        { productId: "PROD002", name: "Mouse", quantity: 2, price: 25 }
+    ],
+    orderDate: ISODate("2024-02-25T12:00:00Z"),
+    totalPrice: 1250
+});
+
 // books 컬렉션에 title, author, details(페이지 수, 출판 연도 포함) 필드를 가진 문서를 삽입하시오.
 
 db.createCollection("books")
+
+//예시1
 db.books.insertMany([{
     title: "MongoDB Basics",
     author: "Son",
@@ -79,9 +132,22 @@ db.books.insertMany([{
 }
 ])
 
+//예시2
+db.books.insertOne({
+    title: "The Great Gatsby",
+    author: "F. Scott Fitzgerald",
+    details: {
+        pages: 180,
+        publicationYear: 1925
+    }
+});
+
+
 // reviews 컬렉션에 productId, userId, rating, comment를 Embedded Document로 저장하시오.
 
 db.createCollection("reviews")
+
+//예시1
 db.reviews.insertMany([
     {
         review: {
@@ -107,7 +173,16 @@ db.reviews.insertMany([
             comment: "Absolutely love it!will buy again"
         }
     }
-])
+]);
+
+//예시2
+db.reviews.insertOne({
+    productId: "PROD001",
+    userId: "Frank",
+    rating: 4,
+    comment: "Great product, very satisfied with the performance."
+});
+
 
 // 2. Link 구조
 // users 컬렉션과 orders 컬렉션을 참조(Reference) 관계로 설정하고 데이터 삽입하시오.

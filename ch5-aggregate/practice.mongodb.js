@@ -207,6 +207,7 @@ db.locations.createIndex({ location: "2dsphere" })
 // $limit
 // 이용하기
 
+//예시1
 db.orders.aggregate([
     {
         $match: {
@@ -252,6 +253,33 @@ db.locations.aggregate([
     }
 ]);
 
+//예시2
+db.orders.aggregate([
+    {
+        $match: {
+            orderDate: {
+                $gte: ISODate("2024-01-01T00:00:00Z"),
+                $lt: ISODate("2024-03-01T00:00:00Z")
+            }
+        }
+    },
+    {
+        $unwind: "$items" // 주문 내 제품을 개별 문서로 변환
+    },
+    {
+        $group: {
+            _id: "$items.productId",
+            totalSold: { $sum: "$items.quantity" } // 제품별 총 판매 개수 계산
+        }
+    },
+    {
+        $sort: { totalSold: -1 } // 판매량 내림차순 정렬
+    },
+    {
+        $limit: 1 // 가장 많이 팔린 제품 1개만 가져오기
+    }
+]);
+
 
 // ✅ 2. 특정 사용자의 총 주문 금액 계산
 // db.orders.aggregate([
@@ -260,6 +288,7 @@ db.locations.aggregate([
 // $project
 // 이용하기
 
+//예시1
 db.orders.aggregate([
     {
         $match: {
@@ -300,10 +329,32 @@ db.orders.aggregate([
     }
 ]);
 
+//예시2
+db.orders.aggregate([
+    {
+        $match: { userId: ObjectId("65d7f0c2e5b6a7d2a4e9f9b1") }
+    },
+    {
+        $group: {
+            _id: "$userId",
+            totalAmount: { $sum: "$totalPrice" }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            userId: "$_id",
+            totalAmount: 1
+        }
+    }
+]);
+
 
 // ✅ 3. 특정 반경 내 가까운(10km 내외) 매장 찾기 ($geoNear)
 // 주의사항, 인덱스 생성, 샘플 데이터에서 생성 명령어 있으니 확인.
 
+
+//예시1
 db.locations.insertMany([
     { name: "Seoul Tower", location: { type: "Point", coordinates: [126.9784, 37.5665] } },
     { name: "Haeundae Beach", location: { type: "Point", coordinates: [129.1611, 35.1587] } },
@@ -335,12 +386,43 @@ db.locations.aggregate([
     }
 ]);
 
+//예시2
+db.stores.createIndex({ location: "2dsphere" });
+
+db.stores.insertMany([
+    {
+        name: "A매장",
+        location: { type: "Point", coordinates: [127.0276, 37.4979] } // 서울 강남역 좌표
+    },
+    {
+        name: "B매장",
+        location: { type: "Point", coordinates: [126.9784, 37.5665] } // 서울 시청 좌표
+    },
+    {
+        name: "C매장",
+        location: { type: "Point", coordinates: [129.0756, 35.1796] } // 부산 해운대 좌표
+    }
+]);
+
+db.stores.aggregate([
+    {
+        $geoNear: {
+            near: { type: "Point", coordinates: [127.0276, 37.4979] }, // 사용자 현재 위치
+            distanceField: "distance", // 거리 결과 필드
+            maxDistance: 10000, // 반경 10km (단위: 미터)
+            spherical: true // 구면 좌표 사용
+        }
+    }
+]);
+
+
 // ✅ 4.특정 카테고리("Electronics")의 제품만 필터링하기 ($match)
 
 // db.products.aggregate
 // $match
 // 이용하기
 
+//예시1
 db.products.insertMany([
     {
         _id: "prod1",
@@ -373,6 +455,20 @@ db.products.aggregate([
     }
 ]);
 
+//예시2
+db.products.insertMany([
+    { name: "Laptop", category: "Electronics", price: 1200 },
+    { name: "Smartphone", category: "Electronics", price: 800 },
+    { name: "Table", category: "Furniture", price: 300 },
+    { name: "Headphones", category: "Electronics", price: 150 },
+    { name: "Sofa", category: "Furniture", price: 900 }
+]);
+
+db.products.aggregate([
+    {
+        $match: { category: "Electronics" } // "Electronics" 카테고리만 필터링
+    }
+]);
 
 // ✅ 5. 제품별 총 판매량 구하기 ($group)
 // db.orders.aggregate([
@@ -381,6 +477,7 @@ db.products.aggregate([
 // $group
 // $sort
 
+//예시1
 db.orders.insertMany([
     {
         _id: "order1",
@@ -438,17 +535,100 @@ db.orders.aggregate([
     }
 ]);
 
+//예시2
+db.orders.insertMany([
+    {
+        _id: ObjectId("65d8f0c2e5b6a7d2a4e9f9a1"),
+        items: [
+            { productId: ObjectId("65d7f0c2e5b6a7d2a4e9f9b1"), quantity: 2 },
+            { productId: ObjectId("65d7f0c2e5b6a7d2a4e9f9b2"), quantity: 1 }
+        ]
+    },
+    {
+        _id: ObjectId("65d8f0c2e5b6a7d2a4e9f9a2"),
+        items: [
+            { productId: ObjectId("65d7f0c2e5b6a7d2a4e9f9b1"), quantity: 3 }
+        ]
+    }
+]);
+
+
+db.products.insertMany([
+    { _id: ObjectId("65d7f0c2e5b6a7d2a4e9f9b1"), name: "Laptop" },
+    { _id: ObjectId("65d7f0c2e5b6a7d2a4e9f9b2"), name: "Headphones" }
+]);
+
+
+db.orders.aggregate([
+    { $unwind: "$items" },
+    {
+        $group: {
+            _id: "$items.productId",
+            totalQuantity: { $sum: "$items.quantity" }
+        }
+    },
+    {
+        $lookup: {
+            from: "products",
+            localField: "_id",
+            foreignField: "_id",
+            as: "productInfo"
+        }
+    },
+    { $unwind: "$productInfo" },
+    {
+        $group: {
+            _id: "$productInfo.category",
+            totalQuantity: { $sum: "$totalQuantity" }
+        }
+    },
+    { $sort: { totalQuantity: -1 } }
+]);
+
 
 // ✅ 6. 최근 판매된 3개 주문 가져오기 ($sort, $limit)
 
 // db.orders.aggregate([
 
+//예시1
 db.orders.aggregate([
     {
         $sort: { orderDate: -1 }  // orderDate 기준으로 내림차순 정렬 (가장 최근이 먼저 오도록)
     },
     {
         $limit: 3  // 최근 3개 주문만 가져오기
+    }
+]);
+
+//예시2
+db.orders.insertMany([
+    { _id: 1, orderDate: ISODate("2024-02-25T12:00:00Z"), items: ["Laptop", "Mouse"] },
+    { _id: 2, orderDate: ISODate("2024-02-24T15:30:00Z"), items: ["Phone"] },
+    { _id: 3, orderDate: ISODate("2024-02-23T10:15:00Z"), items: ["Tablet"] },
+    { _id: 4, orderDate: ISODate("2024-02-22T09:45:00Z"), items: ["Monitor", "Keyboard"] }
+]);
+
+
+db.orders.aggregate([
+    {
+        $sort: { orderDate: -1 } // 최신 주문 순으로 정렬 (내림차순)
+    },
+    {
+        $limit: 3 // 최근 3개만 가져오기
+    }
+]);
+
+
+db.orders.aggregate([
+    { $sort: { orderDate: -1 } },
+    { $limit: 3 },
+    {
+        $lookup: {
+            from: "products",
+            localField: "items",
+            foreignField: "name",
+            as: "productDetails"
+        }
     }
 ]);
 
@@ -462,6 +642,7 @@ db.orders.aggregate([
 // $project
 // 이용하기
 
+//예시1
 db.orders.aggregate([
     {
         $match: { userId: "user1" }  // userId가 "user1"인 주문만 필터링
@@ -479,4 +660,36 @@ db.orders.aggregate([
             totalAmount: 1  // totalAmount 필드를 출력
         }
     }
+]);
+
+//예시2
+db.orders.insertMany([
+    { _id: 1, userId: "user1", totalPrice: 100 },
+    { _id: 2, userId: "user2", totalPrice: 50 },
+    { _id: 3, userId: "user1", totalPrice: 200 },
+    { _id: 4, userId: "user1", totalPrice: 150 }
+]);
+
+db.orders.aggregate([
+    {
+        $match: { userId: "user1" } // 특정 사용자 주문만 필터링
+    },
+    {
+        $group: {
+            _id: "$userId",
+            totalAmount: { $sum: "$totalPrice" } // 총 주문 금액 합산
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            userId: "$_id",
+            totalAmount: 1
+        }
+    }
+]);
+
+db.orders.aggregate([
+    { $group: { _id: "$userId", totalAmount: { $sum: "$totalPrice" } } },
+    { $sort: { totalAmount: -1 } } // 총 주문 금액 기준 내림차순 정렬
 ]);
